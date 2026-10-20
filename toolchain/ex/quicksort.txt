@@ -1,0 +1,273 @@
+.data
+:arr
+0
+0
+0
+0
+0
+0
+0
+0
+:GEN_RAND
+"GEN\sRAND"
+:RESET
+"\s\s\s\s\s\s\s\s"
+:QSORT_END
+"QSORT\sED"
+./data
+
+dreset
+
+mov r1 #8
+mov r2 :GEN_RAND
+call :print_string
+
+mov r7 :arr
+
+; generate random number
+xor r2 r2
+while
+	ifbreak r2 >= #8
+	while
+		rng r1
+		and r1 #b1111
+		ifbreak r1 <= #9
+	}
+
+	mov out r2
+	dindex
+	mov out r1
+	dwrite
+
+	mov [r7] r1
+	inc r7
+
+	inc r2
+}
+
+mov r1 #8
+mov r2 :RESET
+call :print_string
+
+; quick sort
+define SIZE #8
+mov r1 :arr
+mov r2 r1
+add r2 SIZE
+add r2 #-1
+call :quick_sort
+
+xor r1 r1
+mov r2 :arr
+while
+    ifbreak r1 >= #8
+
+    mov out r1
+    dindex
+    mov out [r2]
+    dwrite
+
+    inc r1
+    inc r2
+}
+
+mov r1 #8
+mov r2 :QSORT_END
+call :print_string
+
+exit
+
+:quick_sort ; i(r1 low_addr, r2 high_addr) o() c(r1, r2, r3, r4, r5, r6, r7)
+    if r1 >= r2
+        ret
+    }
+
+    push r2
+    push r1
+
+    mov r6 r1
+    mov r7 r2
+    mov r3 [r6]
+    inc r1
+
+    ; print P L R
+    push r6
+    sub r6 :arr
+    add r6 #8
+    mov out r6
+    dindex
+    mov out #'P'
+    dwrite
+    pop r6
+
+    push r1
+    sub r1 :arr
+    add r1 #8
+    mov out r1
+    dindex
+    mov out #'L'
+    dwrite
+    pop r1
+    
+    push r2
+    sub r2 :arr
+    add r2 #8
+    mov out r2
+    dindex
+    mov out #'R'
+    dwrite
+    pop r2
+    ; -----
+
+    while
+        ifbreak r1 > r2
+        while
+            push r1
+            sub r1 :arr
+            add r1 #8
+            mov out r1
+            dindex
+            mov out #'L'
+            dwrite
+            pop r1
+
+            ifbreak r1 > r7
+            mov r5 [r1]
+            ifbreak r5 > r3
+
+            push r1
+            sub r1 :arr
+            add r1 #8
+            mov out r1
+            dindex
+            mov out #'\s'
+            dwrite
+            pop r1
+
+            inc r1
+        }
+
+        while
+            ifbreak r2 <= r6
+            mov r5 [r2]
+            ifbreak r5 < r3
+
+            push r2
+            sub r2 :arr
+            add r2 #8
+            mov out r2
+            dindex
+            mov out #'\s'
+            dwrite
+            pop r2
+
+            add r2 #-1
+            
+            push r2
+            sub r2 :arr
+            add r2 #8
+            mov out r2
+            dindex
+            mov out #'R'
+            dwrite
+            pop r2
+        }
+
+        ifbreak r1 >= r2
+        
+        push r1
+        sub r1 :arr
+        add r1 #8
+        mov out r1
+        dindex
+        mov out #'*'
+        dwrite
+        pop r1
+
+        push r2
+        sub r2 :arr
+        add r2 #8
+        mov out r2
+        dindex
+        mov out #'*'
+        dwrite
+        pop r2
+
+        mov r4 [r1]
+        mov r5 [r2]
+        mov [r1] r5
+        mov [r2] r4
+
+        
+        push r1
+        sub r1 :arr
+        mov out r1
+        dindex
+        mov out r5
+        dwrite
+        pop r1
+    
+        push r2
+        sub r2 :arr
+        mov out r2
+        dindex
+        mov out r4
+        dwrite
+        pop r2
+    }
+
+    mov r4 [r6]
+    mov r5 [r2]
+    mov [r6] r5
+    mov [r2] r4
+
+    push r6
+    sub r6 :arr
+    mov out r6
+    dindex
+    mov out r5
+    dwrite
+    pop r6
+    
+    push r2
+    sub r2 :arr
+    mov out r2
+    dindex
+    mov out r4
+    dwrite
+    pop r2
+
+
+    push r1
+    push r2
+    mov r1 #8
+    mov r2 :RESET
+    call :print_string
+    pop r2
+    pop r1
+
+    pop r1
+    push r2
+    add r2 #-1
+    call :quick_sort
+
+    pop r1
+    inc r1
+    pop r2
+    call :quick_sort
+ret
+
+:print_string ; i(r1 index, r2 ptr) o() c(r1, r2, r3)
+    while
+        mov r3 [r2]
+        ifbreak r3 == #'\0'
+
+        mov out r1
+        dindex
+        mov out r3
+        dwrite
+
+        inc r1
+        inc r2
+    }
+ret
