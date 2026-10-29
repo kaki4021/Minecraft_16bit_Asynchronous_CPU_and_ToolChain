@@ -242,7 +242,7 @@ jif ::while0_e
 - `ifjmp`의 경우 점프할 타겟 라벨을 함께 명시해야 합니다. (예: `ifjmp r1 == #10 :TARGET_LABEL`)
 
 ---
-#### **DEFINE**  
+### **5. DEFINE**  
 단순 텍스트 치환 전처리 입니다.  
 `define A B`  
 A를 B로 치환하여 컴파일 합니다. 
@@ -260,7 +260,7 @@ mov [r1] r1
 ```
 
 ---
-### **5. Memory & Data Allocation**
+### **6. Memory & Data Allocation**
 컴파일 타임에 정적 데이터, 배열, 문자열 등을 메모리에 할당하고 초기화하기 위해 `.data`와 `./data` 지시어 구역을 사용합니다.
 
 ```nasm
@@ -292,7 +292,7 @@ mov [r1] r1
 
 
 ---
-### **6. Error Tracking & Debugging**
+### **7. Error Tracking & Debugging**
 컴파일 과정에서 문법 오류나 잘못된 참조가 발생할 경우, 컴파일러는 단순히 작동을 멈추는 것에 그치지 않고 오류가 발생한 구체적인 원인과 라인번호 그리고 해당 코드의 주변 컨텍스트를 시각적으로 출력하려 빠른 디버깅을 돕습니다.
 
 **1) Register Name Error**  
