@@ -224,6 +224,7 @@ mov tmp1 r1
 sub tmp1 r2
 jif ::if0_0
 mov pc ::while0_e
+::if0_0
 
 ... 라벨 생략 ...
 ```
