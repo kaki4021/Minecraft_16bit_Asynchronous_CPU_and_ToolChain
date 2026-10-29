@@ -241,6 +241,23 @@ jif ::while0_e
 - 기본적인 조건 작성법은 `if`문과 동일하지만, 단일 라인 명령이므로 중괄호 `}`로 블록 구역을 닫지 않습니다.  
 - `ifjmp`의 경우 점프할 타겟 라벨을 함께 명시해야 합니다. (예: `ifjmp r1 == #10 :TARGET_LABEL`)
 
+---
+#### **DEFINE**  
+단순 텍스트 치환 전처리 입니다.  
+`define A B`  
+A를 B로 치환하여 컴파일 합니다. 
+```nasm
+define I r1
+mov I I
+mov I [I]
+mov [I] I
+```
+위에서 아래로 컴파일
+```nasm
+mov r1 r1
+mov r1 [r1]
+mov [r1] r1
+```
 
 ---
 ### **5. Memory & Data Allocation**
