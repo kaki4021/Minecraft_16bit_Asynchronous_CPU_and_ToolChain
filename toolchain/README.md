@@ -252,7 +252,7 @@ mov I I
 mov I [I]
 mov [I] I
 ```
-위에서 아래로 컴파일
+위 컴파일 시 아래의 결과
 ```nasm
 mov r1 r1
 mov r1 [r1]
