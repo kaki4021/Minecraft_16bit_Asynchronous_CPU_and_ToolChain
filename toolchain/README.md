@@ -68,7 +68,7 @@
 | `jif` | `:LABEL_NAME` | `if (carry) pc = :LABEL_NAME` | **Jump If Carry:** `Carry Flag (CF)`의 값이 `1`인경우 지정된 라벨 주소로 점프합니다. |
 
 **There is no `jmp` instruction**  
-- `move pc :LABEL_NAME` 을 대신 사용합니다.  
+- `mov pc :LABEL_NAME` 을 대신 사용합니다.  
 
 **Conditions for Setting the Carry Flag (CF)**  
 - add/inc: 연산 결과 최상위 비트에서 자릿올림(Carry)이 발생할 때 1로 세팅됩니다. (덧셈 결과가 2^16-1을 초과할 경우)
