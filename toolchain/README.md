@@ -72,7 +72,7 @@
 
 **Conditions for Setting the Carry Flag (CF)**  
 - add/inc: 연산 결과 최상위 비트에서 자릿올림(Carry)이 발생할 때 1로 세팅됩니다. (덧셈 결과가 2^16-1을 초과할 경우)
-- sub: 연산 결과 최상위 비트에서 자릿내림(Borrow)이 발생할 때 1로 세팅됩니다. (뺄셈 결과가 음수일 경우)
+- sub: 연산 결과 최상위 비트에서 자릿내림(Borrow)이 발생하지 않을 때 1로 세팅됩니다. (sub a b: a >= b 일 경우)
 ---
 #### **Stack & Subroutines**
 | Opcode | Operands | Operation | Description  |
