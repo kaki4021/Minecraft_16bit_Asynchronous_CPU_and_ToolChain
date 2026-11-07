@@ -1,0 +1,480 @@
+.data
+:HAS_NUM
+0
+:ACC
+0
+:I
+0
+:INPUTS_SIZE
+0
+:INPUTS
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+./data
+
+dreset
+
+xor r1 r1
+while
+	iwait
+
+	if in == #'\b'
+		add r1 #-1
+
+		mov out r1
+		dindex
+		mov out #'\s'
+		dwrite
+
+		continue
+	}
+    
+	ifbreak in == #'\n'
+
+	mov out r1
+	dindex
+	mov out in
+	dwrite
+
+	mov [r1+:INPUTS] in
+
+	inc r1
+}
+
+; save INPUTS_SIZE
+mov r2 :INPUTS_SIZE
+mov [r2] r1
+
+; parsing
+mov bp sp
+
+add sp #-16
+mov r4 sp ; result_stack
+
+add sp #-16
+mov r5 sp ; is_num r5
+
+mov r6 sp ; operator_stack
+
+xor r7 r7 ; output_size
+
+while
+    mov r3 :I
+    mov r2 [r3]            ; r2 = 현재 인덱스 (:I)
+
+    mov r3 :INPUTS_SIZE
+    mov r3 [r3]            ; r3 = 전체 입력 크기
+
+    ifbreak r2 >= r3       ; 인덱스 도달 시 탈출
+
+    mov r1 [r2+:INPUTS]    ; r1 = 현재 문자 ASCII
+
+    inc r2
+    mov r3 :I
+    mov [r3] r2            ; :I 인덱스 1 증가
+
+    ; ifbreak r1 == #'='
+
+    ; 숫자 파싱
+    if r1 >= #0
+    if r1 <= #9
+        mov r3 :HAS_NUM
+        mov r2 [r3]
+        if r2 == #0
+            mov r2 #1
+            mov [r3] r2    ; HAS_NUM = 1
+
+            mov r3 :ACC
+            xor r2 r2
+            mov [r3] r2    ; ACC = 0
+        }
+
+        mov r3 :ACC
+        mov r2 [r3]        ; r2 = ACC
+        mov r3 r2          ; r3 = ACC 복사본
+        shl r3             ; r3 = ACC * 2
+        shl r2
+        shl r2
+        shl r2             ; r2 = ACC * 8
+        add r2 r3          ; r2 = ACC * 10
+        add r2 r1          ; r2 = ACC * 10 + r1
+        
+        mov r3 :ACC
+        mov [r3] r2        ; ACC 업데이트
+
+        continue
+    }
+    }
+
+    ; 숫자가 아닌 문자가
+    mov r3 :HAS_NUM
+    mov r2 [r3]
+    if r2 != #0
+        mov r3 :ACC
+        mov r2 [r3]
+        mov [r4] r2        ; result_stack에 숫자 저장
+        inc r4
+
+        mov r2 #1
+        mov [r5] r2        ; is_num = 1
+        inc r5
+
+        inc r7
+
+        mov r3 :HAS_NUM
+        xor r2 r2
+        mov [r3] r2        ; HAS_NUM = 0
+    }
+
+    ; 여는 괄호 '('
+    if r1 == #'('
+        push r1
+        continue
+    }
+
+    ; 닫는 괄호 ')'
+    if r1 == #')'
+        while
+            ifbreak sp == r6
+
+            mov r2 [sp]
+            if r2 == #'('
+                pop r2     ; '(' 버림
+                break
+            }
+
+            pop r2
+            mov [r4] r2
+            inc r4
+
+            xor r3 r3
+            mov [r5] r3    ; is_num = 0
+            inc r5
+
+            inc r7
+        }
+        continue
+    }
+
+    ; 사칙연산자
+    if sp == r6
+        push r1
+    else
+        while
+            ifbreak sp == r6
+
+            mov r2 [sp]    ; 스택 Top 읽기
+
+            if r2 == #'('
+                break
+            }
+
+            if r1 == #'+'
+                mov pc :do_pop
+            }
+            if r1 == #'-'
+                mov pc :do_pop
+            }
+
+            if r2 == #'*'
+                mov pc :do_pop
+            }
+            if r2 == #'/'
+                mov pc :do_pop
+            }
+
+            break          ; 우선순위가 높으면 탈출
+
+            :do_pop
+            pop r2
+            mov [r4] r2
+            inc r4
+
+            xor r3 r3
+            mov [r5] r3    ; is_num = 0
+            inc r5
+
+            inc r7
+
+            continue
+        }
+
+        push r1
+    }
+}
+
+; 남은 숫자
+mov r3 :HAS_NUM
+mov r2 [r3]
+if r2 != #0
+    mov r3 :ACC
+    mov r2 [r3]
+    mov [r4] r2
+    inc r4
+
+    mov r2 #1
+    mov [r5] r2
+    inc r5
+
+    inc r7
+}
+
+; 남은 연산자 스택
+while
+    ifbreak sp == r6
+
+    pop r2
+    mov [r4] r2
+    inc r4
+
+    xor r3 r3
+    mov [r5] r3
+    inc r5
+
+    inc r7
+}
+
+sub r4 r7 ; goto start
+sub r5 r7 ; goto start
+xor r6 r6 ; index
+
+while
+    ifbreak r6 >= r7
+
+    mov r1 [r5]
+    if r1 == #1
+        mov r2 [r4]
+        push r2
+    else
+        pop r2
+        pop r1
+
+        mov r3 [r4]
+        if r3 == #'+'
+            add r1 r2
+        elif r3 == #'-'
+            sub r1 r2
+        elif r3 == #'*'
+            push r3
+            push r4
+            call :smul
+            pop r4
+            pop r3
+        else
+            push r3
+            push r4
+            push r5
+            call :sdiv
+            pop r5
+            pop r4
+            pop r3
+        }
+
+        push r1
+    }
+
+    inc r4
+    inc r5
+    inc r6
+}
+
+dreset
+
+mov out #8
+dindex
+mov out #'='
+dwrite
+
+mov r1 #9
+pop r2
+call :print_dec
+
+exit
+
+
+; functions
+:mul ; i(r1, r2) o(r1) c(r3, r4)
+	if r1 < r2
+		mov r3 r1
+		mov r1 r2
+		mov r2 r3
+	}
+
+	mov r3 r1
+	xor r1 r1
+
+	while
+		ifbreak r2 == #0
+
+		mov r4 r2
+		and r4 #1
+		if r4 > #0
+			add r1 r3
+		}
+		shr r2
+		shl r3
+	}
+ret
+:div ; i(r1, r2) o(r1 quotient, r2 remainder) c(r3, r4, r5)
+	xor r3 r3
+	xor r5 r5
+
+	while
+		ifbreak r5 >= #16
+
+		mov r4 r1
+		and r4 #b1000000000000000
+		ifbreak r4 >= #1
+
+		shl r1
+		inc r5
+	}
+
+	while
+		ifbreak r5 >= #16
+		
+		mov r4 r1
+		and r4 #b1000000000000000
+		shl r1
+		shl r3
+		if r4 > #0
+			inc r3
+		}
+
+		if r2 <= r3
+			sub r3 r2
+			inc r1
+		}
+
+		inc r5
+	}
+	mov r2 r3
+ret
+:smul
+    mov r3 r1
+    xor r3 r2
+    and r3 #b1000000000000000
+
+    mov r4 r1
+    and r4 #b1000000000000000
+    if r4 > #0
+        xor r4 r4
+        sub r4 r1
+        mov r1 r4
+    }
+    mov r4 r2
+    and r4 #b1000000000000000
+    if r4 > #0
+        xor r4 r4
+        sub r4 r2
+        mov r2 r4
+    }
+
+    push r3
+    call :mul
+    pop r3
+
+    if r3 > #0
+        xor r4 r4
+        sub r4 r1
+        mov r1 r4
+    }
+ret
+:sdiv
+    mov r3 r1
+    xor r3 r2
+    and r3 #b1000000000000000
+
+    mov r4 r1
+    and r4 #b1000000000000000
+    if r4 > #0
+        xor r4 r4
+        sub r4 r1
+        mov r1 r4
+    }
+    mov r4 r2
+    and r4 #b1000000000000000
+    if r4 > #0
+        xor r4 r4
+        sub r4 r2
+        mov r2 r4
+    }
+
+    push r3
+    call :div
+    pop r3
+
+    if r3 > #0
+        xor r4 r4
+        sub r4 r1
+        mov r1 r4
+    }
+ret
+:print_dec ; i(r1 print_index, r2 print_number) o() c(r3, r4, r5)
+    mov r3 r2
+    and r3 #b1000000000000000
+    if r3 > #0
+        mov out r1
+        dindex
+        mov out #'-'
+        dwrite
+        inc r1
+
+        xor r3 r3
+        sub r3 r2
+        mov r2 r3
+    }
+
+	mov r4 sp
+	
+	push #10
+	push #100
+	push #1000
+	push #10000
+
+	while
+		ifbreak sp >= r4
+		mov r5 [sp]
+		ifbreak r2 >= r5
+		inc sp
+	}
+
+	while
+		ifbreak sp >= r4
+
+		mov r5 [sp]
+		xor r3 r3
+		while
+			ifbreak r2 < r5
+			sub r2 r5
+			inc r3
+		}
+
+		mov out r1
+		dindex
+		inc r1
+		mov out r3
+		dwrite
+
+		inc sp
+	}
+
+	mov out r1
+	dindex
+	mov out r2
+	dwrite
+ret

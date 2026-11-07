@@ -1,0 +1,220 @@
+.data
+:arr
+0
+0
+0
+0
+0
+0
+0
+0
+./data
+
+dreset
+
+mov out #8
+dindex
+mov out #'G'
+dwrite
+mov out #9
+dindex
+mov out #'E'
+dwrite
+mov out #10
+dindex
+mov out #'N'
+dwrite
+mov out #12
+dindex
+mov out #'R'
+dwrite
+mov out #13
+dindex
+mov out #'A'
+dwrite
+mov out #14
+dindex
+mov out #'N'
+dwrite
+mov out #15
+dindex
+mov out #'D'
+dwrite
+
+mov r7 :arr
+
+; generate random number
+xor r2 r2
+while
+	ifbreak r2 >= #8
+	while
+		rng r1
+		and r1 #b1111
+		ifbreak r1 <= #9
+	}
+
+	mov out r2
+	dindex
+	mov out r1
+	dwrite
+
+	mov [r7] r1
+	inc r7
+
+	inc r2
+}
+
+mov out #8
+dindex
+mov out #'\0'
+dwrite
+mov out #9
+dindex
+mov out #'\0'
+dwrite
+mov out #10
+dindex
+mov out #'\0'
+dwrite
+mov out #12
+dindex
+mov out #'\0'
+dwrite
+mov out #13
+dindex
+mov out #'\0'
+dwrite
+mov out #14
+dindex
+mov out #'\0'
+dwrite
+mov out #15
+dindex
+mov out #'\0'
+dwrite
+
+; bubble sort
+define SIZE #8
+mov r1 :arr
+xor r2 r2
+while
+	ifbreak r2 >= SIZE
+
+	xor r3 r3
+	while
+		mov r4 SIZE
+		sub r4 r2
+		add r4 #-1
+		ifbreak r3 >= r4
+
+		; print ^
+		add r3 #8
+
+		mov out r3
+		dindex
+		mov out #'^'
+		dwrite
+
+		inc r3
+		mov out r3
+		dindex
+		mov out #'^'
+		dwrite
+
+		add r3 #-9
+		; -----
+
+		mov r4 r1
+		add r4 r3
+		mov r5 r4
+		inc r5
+		mov r6 [r4]
+		mov r7 [r5]
+		if r6 > r7
+			; print *
+			add r3 #8
+
+			mov out r3
+			dindex
+			mov out #'*'
+			dwrite
+
+			inc r3
+			mov out r3
+			dindex
+			mov out #'*'
+			dwrite
+
+			add r3 #-9
+			; -----
+
+			mov [r4] r7
+			mov [r5] r6
+
+			; print num
+			mov out r3
+			dindex
+			mov out [r4]
+			dwrite
+
+			inc r3
+			mov out r3
+			dindex
+			mov out [r5]
+			dwrite
+			add r3 #-1
+			; -----
+		}
+
+		; delete ^
+		add r3 #8
+
+		mov out r3
+		dindex
+		mov out #'\0'
+		dwrite
+
+		inc r3
+		mov out r3
+		dindex
+		mov out #'\0'
+		dwrite
+
+		; add r3 #-9
+		add r3 #-8
+		; -----
+
+		; inc r3
+	}
+
+	inc r2
+}
+
+mov out #8
+dindex
+mov out #'S'
+dwrite
+mov out #9
+dindex
+mov out #'O'
+dwrite
+mov out #10
+dindex
+mov out #'R'
+dwrite
+mov out #11
+dindex
+mov out #'T'
+dwrite
+mov out #13
+dindex
+mov out #'E'
+dwrite
+mov out #14
+dindex
+mov out #'N'
+dwrite
+mov out #15
+dindex
+mov out #'D'
+dwrite

@@ -1,0 +1,78 @@
+dreset
+
+mov r1 #3
+call :scan_dec
+
+dreset
+
+mov r1 #3
+mov r3 #1
+call :print_dec
+exit
+
+:scan_dec ; i(r1 print_index) o(r2) c(r3)
+	xor r2 r2
+	while
+		iwait
+		ifbreak in == #'\n'
+
+		mov out r1
+		dindex
+		mov out in
+		dwrite
+		inc r1
+
+		shl r2
+		mov r3 r2
+		shl r2
+		shl r2
+		add r2 r3
+
+		add r2 in
+	}
+ret
+
+:print_dec ; i(r1 print_index, r2 print_number, r3 align_mode) o() c(r3, r4, r5)
+	mov r4 sp
+	
+	push #10
+	push #100
+	push #1000
+	push #10000
+
+	while
+		ifbreak sp >= r4
+		mov r5 [sp]
+		ifbreak r2 >= r5
+		inc sp
+
+		if r3 != #0
+			inc r1
+		}
+	}
+
+	while
+		ifbreak sp >= r4
+
+		mov r5 [sp]
+		xor r3 r3
+		while
+			ifbreak r2 < r5
+			sub r2 r5
+			inc r3
+		}
+
+		mov out r1
+		dindex
+		inc r1
+		mov out r3
+		dwrite
+
+		inc sp
+	}
+
+	mov out r1
+	dindex
+	mov out r2
+	dwrite
+ret

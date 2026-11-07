@@ -1,0 +1,117 @@
+dreset
+
+mov r7 #535
+
+mov r1 #11
+mov r2 r7
+call :print_dec
+
+while
+	ifbreak r7 <= #1
+
+	mov r6 r7
+	and r6 #1
+	if r6 > #0
+		mov r6 r7
+		shl r7
+		add r7 r6
+		inc r7
+	else
+		shr r7
+	}
+
+	; number in d up
+	mov r1 :before_buffer
+	mov r2 r1 ; before_buffer end
+	add r2 #4
+	mov r3 #3 ; dindex
+	while
+		ifbreak r1 > r2
+
+		mov out r3
+		dindex
+		mov out [r1]
+		dwrite
+
+		add r3 #8
+		mov out r3
+		dindex
+		add r3 #-8
+		mov out #'\0'
+		dwrite
+
+		inc r1
+		inc r3
+	}
+
+	mov r1 #11
+	mov r2 r7
+	call :print_dec
+}
+exit
+
+.data
+:before_buffer
+'\0'
+'\0'
+'\0'
+'\0'
+'\0'
+./data
+:print_dec ; i(r1 print_index, r2 print_number, r3 align_mode) o() c(r3, r4, r5, r6)
+	mov r4 sp
+	mov r6 :before_buffer
+	
+	push #10
+	push #100
+	push #1000
+	push #10000
+
+	while
+		ifbreak sp >= r4
+		mov r5 [sp]
+		ifbreak r2 >= r5
+
+		inc sp
+
+		mov tmp1 #'\0'
+		mov [r6] tmp1
+		inc r6
+
+		mov out r1
+		dindex
+		mov out #'\0'
+		dwrite
+		inc r1
+	}
+
+	while
+		ifbreak sp >= r4
+
+		mov r5 [sp]
+		xor r3 r3
+		while
+			ifbreak r2 < r5
+			sub r2 r5
+			inc r3
+		}
+
+		mov [r6] r3
+		inc r6
+
+		mov out r1
+		dindex
+		inc r1
+		mov out r3
+		dwrite
+
+		inc sp
+	}
+
+	mov [r6] r2
+
+	mov out r1
+	dindex
+	mov out r2
+	dwrite
+ret

@@ -1,0 +1,115 @@
+dreset
+
+mov r1 #19
+mov r2 #4
+call :div
+
+push r2
+mov r2 r1
+xor r1 r1
+call :print_dec
+
+mov r1 #8
+pop r2
+call :print_dec
+exit
+
+:mul ; i(r1, r2) o(r1) c(r3, r4)
+	if r1 < r2
+		mov r3 r1
+		mov r1 r2
+		mov r2 r3
+	}
+
+	mov r3 r1
+	xor r1 r1
+
+	while
+		ifbreak r2 == #0
+
+		mov r4 r2
+		and r4 #1
+		if r4 > #0
+			add r1 r3
+		}
+		shr r2
+		shl r3
+	}
+ret
+
+:div ; i(r1, r2) o(r1 quotient, r2 remainder) c(r3, r4, r5)
+	xor r3 r3
+	xor r5 r5
+
+	while
+		ifbreak r5 >= #16
+
+		mov r4 r1
+		and r4 #b1000000000000000
+		ifbreak r4 >= #1
+
+		shl r1
+		inc r5
+	}
+
+	while
+		ifbreak r5 >= #16
+		
+		mov r4 r1
+		and r4 #b1000000000000000
+		shl r1
+		shl r3
+		if r4 > #0
+			inc r3
+		}
+
+		if r2 <= r3
+			sub r3 r2
+			inc r1
+		}
+
+		inc r5
+	}
+	mov r2 r3
+ret
+
+:print_dec ; i(r1 print_index, r2 print_number, r3 align_mode) o() c(r3, r4, r5)
+	mov r4 sp
+	
+	push #10
+	push #100
+	push #1000
+	push #10000
+
+	while
+		ifbreak sp >= r4
+		mov r5 [sp]
+		ifbreak r2 >= r5
+		inc sp
+	}
+
+	while
+		ifbreak sp >= r4
+
+		mov r5 [sp]
+		xor r3 r3
+		while
+			ifbreak r2 < r5
+			sub r2 r5
+			inc r3
+		}
+
+		mov out r1
+		dindex
+		inc r1
+		mov out r3
+		dwrite
+
+		inc sp
+	}
+
+	mov out r1
+	dindex
+	mov out r2
+	dwrite
+ret
