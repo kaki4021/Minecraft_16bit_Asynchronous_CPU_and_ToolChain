@@ -136,7 +136,12 @@ int main()
         inputs.print();
         std::cout << "--\n";
 #endif
-
+        InputsType _inputs;
+        lines = 0;
+        _inputs.push_back("mov sp #" + std::to_string(init_sp));
+        _inputs.inputs.insert(_inputs.inputs.end(), inputs.inputs.begin(), inputs.inputs.end());
+        _inputs.codelines.insert(_inputs.codelines.end(), inputs.codelines.begin(), inputs.codelines.end());
+        inputs = std::move(_inputs);
         std::string init_sp_msg = "";
         std::string cmp = compile(inputs);
         int binary_lines = std::count(cmp.begin(), cmp.end(), '\n') + 2; // original + init sp
@@ -155,18 +160,20 @@ int main()
             else
                 init_sp_msg += "*WARNING*: stack overflow detected(heap end: " + std::to_string(binary_lines) + ", stack start: " + std::to_string(init_sp) + ")\n";
         }
-        cmp = "0000011000000100\n" + decToBin16Signed(std::to_string(init_sp)) + "\n" + cmp; // mov sp #init_sp
+        // cmp = "0000011000000100\n" + decToBin16Signed(std::to_string(init_sp)) + "\n" + cmp; // mov sp #init_sp
         std::cout << "--end--\n";
 #ifdef PRINT_LOG
         std::cout << cmp;
         std::cout << "--\n";
 #endif
+        bool is_bin = false;
+        // is_bin = true;
 
         std::string func = mcfunctions(cmp);
         func += "\n";
         func += "tellraw @a {\"text\":\"program loaded\"}";
         std::cout << init_sp_msg;
-        if (CopyToClipboard(func))
+        if (CopyToClipboard(is_bin ? cmp : func))
             std::cout << "Copied!";
         else
             std::cout << "Failed to Copy.";
