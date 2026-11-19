@@ -31,11 +31,13 @@ std::vector<std::string> split_token(const std::string& s)
 {
     const std::set<char> spliter = { ' ', '+', '-', '[', ']' };
 
+    char before = '\0';
+
     std::vector<std::string> result;
     std::string temp;
     for (char i : s)
     {
-        if (spliter.count(i))
+        if (before != '\'' && spliter.count(i))
         {
             if (temp.size() > 0)
                 result.push_back(temp);
@@ -46,6 +48,7 @@ std::vector<std::string> split_token(const std::string& s)
         {
             temp.push_back(i);
         }
+        before = i;
     }
     if (temp.size() > 0)
         result.push_back(temp);

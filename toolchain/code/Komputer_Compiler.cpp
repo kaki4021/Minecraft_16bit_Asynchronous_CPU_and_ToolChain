@@ -14,7 +14,7 @@
 #include "nameException.h"
 
 
-#define MAX_ADDRESS 16 * 16 * 2
+#define MAX_ADDRESS 16 * 16 * 4
 
 #define PRINT_LOG
 
@@ -149,6 +149,7 @@ int main()
         {
             init_sp = binary_lines + auto_stack_size;
             init_sp_msg += "auto set ";
+            cmp = "0000011000000100\n" + decToBin16Signed(std::to_string(init_sp)) + "\n" + cmp.substr((16 + 1) * 2); // mov sp #init_sp
         }
         if (init_sp > MAX_ADDRESS)
             init_sp = MAX_ADDRESS;

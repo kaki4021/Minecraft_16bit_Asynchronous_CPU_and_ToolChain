@@ -522,7 +522,8 @@ InputsType pre_callreturn(const InputsType& inputs)
         }
         else if (cmd == "ret")
         {
-            result.push_back("pop pc");
+            result.push_back("pop tmp1");
+            result.push_back("mov pc tmp1");
         }
         else
         {
@@ -589,10 +590,20 @@ InputsType pre_offset(const InputsType& inputs)
             {
                 std::string oper = "add";
                 std::vector<std::string> spl2 = split(spl.at(2), '+');
+                if (spl2[0] == "#")
+                {
+                    result.push_back(i);
+                    continue;
+                }
                 if (spl2.size() <= 1)
                 {
                     oper = "sub";
                     spl2 = split(spl.at(2), '-');
+                    if (spl2[0] == "#")
+                    {
+                        result.push_back(i);
+                        continue;
+                    }
                     if (spl2.size() <= 1)
                     {
                         result.push_back(i);
